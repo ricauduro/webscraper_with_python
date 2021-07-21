@@ -11,8 +11,8 @@ Apos a obtenção das mesmas, faço a criação de duas listas, atraves das quai
 volume de informações essa seria a hora de fazer a manipulação e enriquecimento dos dados antes da exportação. 
 
    Antes de iniciar o processo de exportação eu crio a sessão PySpark, que é uma interface alto nível que me permite acessar 
-e usar o Spark por meio da linguagem Python. No processo de exportação dos dados eu inicialmente gero o DF em formato Spark  
-e depois gravo a tabela no formato Delta, que é uma camada de armazenamento de software livre que traz confiabilidade para 
+e usar o Spark por meio da linguagem Python. No processo de exportação dos dados eu inicialmente gero o DF em formato Spark e 
+depois gravo a tabela no formato Delta, que é uma camada de armazenamento de software livre que traz confiabilidade para 
 os data lakes. O Delta Lake fornece transações ACID, tratamento de metadados escalonáveis e unifica o processamento de dados 
 de lote e streaming. 
 
