@@ -20,5 +20,5 @@ de lote e streaming.
 no meu SQL Server On Premise (SQL Local), tudo diretamente do Python, demonstrando a integração entre as ferramentas.
 A segunda parte do projeto corre no ambiente de Cloud Computing, onde utilizo o Azure Data Factory para fazer uma pesquisa nos 
 meus dados do SQL Local com uma iteração condicional sobre a data dos dados. Quando certa condição é atendida, uma stored 
-procedure é ativada, gerando um arquivo com os livro mais bem recomendados. Então o Data Factory salva essa recondação no meu 
-Datalake e, atraves de um Logic App, me envia essa recomendação por e-mail.  
+procedure é ativada, gerando um arquivo com os livros mais bem recomendados. Então o Data Factory salva essa recondação no meu 
+Datalake e, atraves de um Logic App, essa recomendação é enviada por e-mail.  
