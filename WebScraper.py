@@ -47,15 +47,12 @@ builder = SparkSession.builder.appName("Rica") \
 spark = spark = configure_spark_with_delta_pip(builder).getOrCreate()
 
 #Criando o DataFrame
-"""
-Por algum motivo desconhecido meu Spark não esta gerando o DF direto das listas, por isso
-que gerei como pandas, salvei como csv e gerei o SparkDF do csv. 
-"""
-import pandas as pd 
+Schema = StructType([       
+    StructField('title', StringType(), True),
+    StructField('stars', StringType(), True)
+])
 
-df = pd.DataFrame({'titulo': titulo, 'classificacao': classificacao})
-df.to_csv('C:\\Users\\Cliente\\Downloads\\file.csv')
-df1 = spark.read.format('csv').option('header',True).load('C:\\Users\\Cliente\\Downloads\\file.csv')
+df = spark.createDataFrame(zip(titulo, classificacao), Schema
 
 #Exportando o arquivo para o storage local no formato Delta
 from datetime import date
@@ -64,7 +61,7 @@ data_atual = date.today()
 dat = data_atual.strftime('%Y-%m-%d')
 dir = "Raw-"+dat
 path = r"C:\\Users\\Cliente\\Desktop\Notebooks\\" + dir
-df1.write.format("delta").mode("overwrite").save(path)
+df.write.format("delta").mode("overwrite").save(path)
 
 #Padronizando o nome para o dia da extração
 import os
@@ -76,7 +73,7 @@ for nome in os.listdir(path):
 
 #Upload do arquivo para o Datalake
 """
-A variavel 'AZURE_STORAGE_CONNECTION_STRING' precisa ser definida com o comando abaixo no CMD
+A variavel de ambiente 'AZURE_STORAGE_CONNECTION_STRING' pode ser definida com o comando abaixo no PowerShell CLI
 
 setx AZURE_STORAGE_CONNECTION_STRING "<yourconnectionstring>"
 
@@ -96,24 +93,23 @@ def upload(SOURCE_FILE):
 upload(SOURCE_FILE)
 
 #Criando conexão com o SQL Server
-import pyodbc
+server_name = "jdbc:sqlserver://{SERVER_ADDR}"
+database_name = "master"
+url = server_name + ";" + "databaseName=" + database_name + ";"
 
-server = 'server'
-database = 'master'
-username = 'username'
-password = 'password'
-cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=' +
-                      server+';DATABASE='+database+';UID='+username+';PWD=' + password)
-cursor = cnxn.cursor()
+table_name = "livros"
+username = "username"
+password = "password" 
 
 #Inserindo os dados no Banco de Dados
-"""
-A função iterrows só funciona com o Pandas. Para gravar direto do Spark precisa ser feita a conexão via JDBC
-seguindo os passos em https://docs.microsoft.com/pt-br/sql/big-data-cluster/spark-mssql-connector?view=sql-server-ver15 
-"""
-
-for index, row in df.iterrows():
-    cursor.execute("INSERT INTO Livros (Titulo,Classificacao) values(?,?)",
-                   row.titulo, row.classificacao)
-cnxn.commit()
-cursor.close()
+try:
+  df.write \
+    .format("com.microsoft.sqlserver.jdbc.spark") \
+    .mode("overwrite") \
+    .option("url", url) \
+    .option("dbtable", table_name) \
+    .option("user", username) \
+    .option("password", password) \
+    .save()
+except ValueError as error :
+    print("Connector write failed", error)
